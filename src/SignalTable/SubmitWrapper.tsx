@@ -20,20 +20,25 @@ export function SubmitWrapper({
   const submitHandler: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     rowData;
-    let values: Array<Record<string, string | number | boolean | null>> = [
-      ...cellMap.entries(),
-    ]
-      .map(([key, value]) => {
+    let entries = cellMap.entries();
+    if (entries) {
+      let values: Array<
+        Record<string, string | number | boolean | null> | undefined
+      > = [...entries].map(([key, value]) => {
         let [rowId, name] = key.split('|');
         let row = rowData.find((r) => String(r[foreignKey]) === rowId);
         if (row) {
           row[name] = value;
         }
         return row;
-      })
-      .filter((r) => r !== undefined);
-    handleSubmit && handleSubmit(values);
+      });
+      let valuesFiltered = values.filter((r) => !!r) as Array<
+        Record<string, string | number | boolean | null>
+      >;
+      handleSubmit && handleSubmit(valuesFiltered);
+    }
   };
+
   if (!handleSubmit) return <>{children}</>;
   return (
     <form className="flex flex-col" onSubmit={submitHandler}>
